@@ -15,7 +15,7 @@ describe("GET/api/topics", () => {
       .get("/api/topics")
       .expect(200)
       .then(({ body }) => {
-        const { topics } = body 
+        const { topics } = body;
         expect(topics.length > 0);
         topics.forEach((topic) => {
           expect(topic).toHaveProperty("slug");
@@ -30,8 +30,8 @@ describe("GET/api", () => {
     return request(app)
       .get("/api")
       .expect(200)
-      .then(({body: { endPoints}})=>{
-        expect(endPoints.length > 0); 
+      .then(({ body: { endPoints } }) => {
+        expect(endPoints.length > 0);
         endPoints.forEach((endPoint) => {
           expect(endPoint).toHaveProperty("endpoint");
           expect(endPoint).toHaveProperty("description");
@@ -47,8 +47,8 @@ describe("GET/api/articles/article_id", () => {
     return request(app)
       .get("/api/articles/1")
       .expect(200)
-      .then(({body: { article}})=>{
-        expect(article.length > 0); 
+      .then(({ body: { article } }) => {
+        expect(article.length > 0);
         article.forEach((article) => {
           expect(article).toHaveProperty("article_id");
           expect(article).toHaveProperty("title");
@@ -66,17 +66,38 @@ describe("GET/api/articles/article_id", () => {
     return request(app)
       .get("/api/articles/500")
       .expect(404)
-      .then(( {body} ) => {
-        expect(body.msg).toBe("id not found")
+      .then(({ body }) => {
+        expect(body.msg).toBe("id not found");
       });
-  })
+  });
 
   test("400: returns a corresponding message when a given false syntaxed article id ", () => {
     return request(app)
       .get("/api/articles/dog")
       .expect(400)
-      .then(( {body} ) => {
-        expect(body.msg).toBe("bad request")
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+});
+
+describe("GET/api/articles", () => {
+  test("200: returns all the articles, with associated comment counts", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length > 0);
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
+          expect(article).toHaveProperty("article_img_url");
+          expect(article).toHaveProperty("comment_count");
+        });
       });
   });
 });
