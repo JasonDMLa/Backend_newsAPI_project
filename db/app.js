@@ -3,7 +3,9 @@ const app = express();
 const {
   getTopics,
   getEndpoints,
-  getArticleById,getArticles
+  getArticleById,
+  getArticles,
+  getCommentsByArticle,
 } = require("./controllers/topics.controller");
 const {
   psqlErrorHandler,
@@ -17,7 +19,9 @@ app.get("/api", getEndpoints);
 
 app.get("/api/articles/:article_id", getArticleById);
 
-app.get("/api/articles", getArticles)
+app.get("/api/articles", getArticles);
+
+app.get("/api/articles/:article_id/comments", getCommentsByArticle);
 
 app.use(psqlErrorHandler);
 

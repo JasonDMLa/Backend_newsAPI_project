@@ -75,7 +75,7 @@ exports.countCommentTotals = () => {
 
 };
 
-exports.retrieveAllArticles = () => {
+exports.retrieveAllArticles = (article_id) => {
   return db
     .query(` SELECT author,title,article_id,topic,created_at,votes,article_img_url FROM articles ORDER BY created_at DESC `)
     .then((articles) => {
@@ -85,3 +85,31 @@ exports.retrieveAllArticles = () => {
       next(err);
     });
 };
+
+exports.retrieveCommentsById = (article_id) => {
+  return db.query(`SELECT comment_id,votes,created_at,author,body,article_id FROM comments WHERE article_id = $1 ORDER BY created_at DESC`,[article_id])
+  .then((comments)=>{
+    return comments.rows
+  })
+}
+
+exports.retrieveCommentsById = (article_id) => {
+  let queryString = "SELECT comment_id,votes,created_at,author,body,article_id FROM comments";
+  const queryValues = [];
+  const queryPromises = [];
+  if (article_id) {
+    queryString += ` WHERE article_id = $1 ORDER BY created_at DESC`;
+    queryValues.push(article_id);
+    queryPromises.push(checkExists("comments", "article_id", article_id));
+  }
+
+  queryPromises.push(db.query(queryString, queryValues));
+
+  return Promise.all(queryPromises).then((PromResults) => {
+    if (queryPromises.length === 1) {
+      return PromResults[0].rows;
+    } else {
+      return PromResults[1].rows;
+    }
+  });
+}

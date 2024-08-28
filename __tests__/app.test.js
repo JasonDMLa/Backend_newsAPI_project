@@ -101,3 +101,41 @@ describe("GET/api/articles", () => {
       });
   });
 });
+
+describe("GET/api/articles/:article_id/comments", () => {
+  test("200: returns all the comments associated with a certain article id", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments.length > 0)
+        expect(comments).toHaveLength(11)
+        comments.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id");         
+          expect(comment).toHaveProperty("votes");
+          expect(comment).toHaveProperty("created_at");
+          expect(comment).toHaveProperty("author");
+          expect(comment).toHaveProperty("body");
+          expect(comment).toHaveProperty("article_id");
+        });
+      });
+  });
+});
+
+test("400: returns a corresponding message when given a false syntaxed article id ", () => {
+  return request(app)
+    .get("/api/articles/cat/comments")
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("bad request");
+    });
+});
+
+test("404: returns a corresponding message when given a syntax valid article id isnt found", () => {
+  return request(app)
+    .get("/api/articles/500/comments")
+    .expect(404)
+    .then(({ body }) => {
+      expect(body.msg).toBe("id not found");
+    });
+});
