@@ -37,6 +37,8 @@ app.delete("/api/comments/:comment_id", deleteCommentById);
 
 app.get("/api/users", getAllUsers);
 
+app.get("/api/articles")
+
 app.use(psqlErrorHandler);
 
 app.use(customErrorHandler);
