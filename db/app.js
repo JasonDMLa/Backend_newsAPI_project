@@ -5,7 +5,9 @@ const {
   getEndpoints,
   getArticleById,
   getArticles,
-  getCommentsByArticle,postCommentToArticle
+  getCommentsByArticle,
+  postCommentToArticle,
+  patchArticleById,
 } = require("./controllers/topics.controller");
 const {
   psqlErrorHandler,
@@ -25,7 +27,9 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticle);
 
 app.use(express.json());
 
-app.post("/api/articles/:article_id/comments", postCommentToArticle)
+app.post("/api/articles/:article_id/comments", postCommentToArticle);
+
+app.patch("/api/articles/:article_id", patchArticleById);
 
 app.use(psqlErrorHandler);
 

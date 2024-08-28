@@ -6,8 +6,9 @@ const {
   retrieveAllArticles,
   countCommentTotals,
   retrieveCommentsById,
-  addCommentById,
+  addCommentById,changeVotesById
 } = require("../models/topics.models");
+const { getVotes } = require("../seeds/utils.js");
 
 exports.getTopics = (request, response, next) => {
   retrieveAllTopics()
@@ -85,3 +86,23 @@ exports.postCommentToArticle = (request, response, next) => {
       next(err);
     });
 };
+
+exports.patchArticleById = (request, response, next) => {
+  const { article_id } = request.params;
+  const { body } = request;
+  getVotes("articles", "article_id", article_id)
+  .then((currentVotes)=>{
+    const votesToChange = currentVotes.votes + body.inc_votes
+     changeVotesById(article_id, votesToChange)
+    .then((article) => {
+      response.status(200).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+  }).catch((err) => {
+    next(err);
+  });
+ 
+};
+

@@ -13,6 +13,22 @@ exports.checkExists = (table_name,column_name,value) => {
     }
 })}
 
+exports.getVotes = (table_name,column_name,value) => {
+  const queryString = format(
+    "SELECT votes FROM %I WHERE %I = $1",
+    table_name,
+    column_name
+  )
+  return db.query(queryString,[value]).then(({rows})=>{
+    if (rows.length === 0) {
+      return Promise.reject({ status: 404, msg: "id not found" });
+    }
+    else{
+      return rows[0]
+    }
+})}
+
+
 
 exports.convertTimestampToDate = ({ created_at, ...otherProperties }) => {
   if (!created_at) return { ...otherProperties };
