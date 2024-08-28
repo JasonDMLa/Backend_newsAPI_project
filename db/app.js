@@ -9,6 +9,7 @@ const {
   postCommentToArticle,
   patchArticleById,
   deleteCommentById,
+  getAllUsers,
 } = require("./controllers/topics.controller");
 const {
   psqlErrorHandler,
@@ -33,6 +34,8 @@ app.post("/api/articles/:article_id/comments", postCommentToArticle);
 app.patch("/api/articles/:article_id", patchArticleById);
 
 app.delete("/api/comments/:comment_id", deleteCommentById);
+
+app.get("/api/users", getAllUsers);
 
 app.use(psqlErrorHandler);
 
