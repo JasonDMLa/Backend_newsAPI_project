@@ -261,16 +261,14 @@ describe("PATCH/api/articles/:article_id", () => {
 
 describe("DELETE/api/comments/:comment_id", () => {
   test("204: delete a comment at specified id", () => {
-    return request(app)
-    .delete("/api/comments/1")
-    .expect(204);
+    return request(app).delete("/api/comments/1").expect(204);
   });
 });
 
 test("400: returns a corresponding message when given a false syntaxed article id ", () => {
   return request(app)
-  .delete("/api/comments/invalid")
-  .expect(400)
+    .delete("/api/comments/invalid")
+    .expect(400)
     .then(({ body }) => {
       expect(body.msg).toBe("bad request");
     });
@@ -278,9 +276,24 @@ test("400: returns a corresponding message when given a false syntaxed article i
 
 test("404: returns a corresponding message when given a syntax valid article id that isnt found", () => {
   return request(app)
-  .delete("/api/comments/500")
-  .expect(404)
+    .delete("/api/comments/500")
+    .expect(404)
     .then(({ body }) => {
       expect(body.msg).toBe("id not found");
     });
+});
+
+describe("GET/users", () => {
+  test("200: gets all of the users in the test data", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body: { users } }) => {
+        users.forEach((user) => {
+          expect(user).toHaveProperty("username");
+          expect(user).toHaveProperty("name");
+          expect(user).toHaveProperty("avatar_url");
+        });
+      });
+  });
 });

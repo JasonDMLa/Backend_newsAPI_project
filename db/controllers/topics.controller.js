@@ -6,7 +6,7 @@ const {
   retrieveAllArticles,
   countCommentTotals,
   retrieveCommentsById,
-  addCommentById,changeVotesById,removeCommentAtId
+  addCommentById,changeVotesById,removeCommentAtId,retrieveAllUsers
 } = require("../models/topics.models");
 const { getVotes } = require("../seeds/utils.js");
 
@@ -117,4 +117,10 @@ exports.deleteCommentById = (request, response, next) => {
       next(err);
     });
 };
+
+exports.getAllUsers = (request, response, next) => {
+  retrieveAllUsers().then((users)=>{
+    response.status(200).send({users})
+  })
+}
 

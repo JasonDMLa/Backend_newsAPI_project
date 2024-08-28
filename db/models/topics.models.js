@@ -128,18 +128,18 @@ exports.addCommentById = (article_id, body) => {
 };
 
 exports.changeVotesById = (article_id, votesToChange) => {
-    let queryString = `UPDATE articles SET votes = $1 WHERE articles.article_id = $2 RETURNING *`;
-    const queryValues = [];
-    const queryPromises = [];
-    queryValues.push(votesToChange, article_id);
-    queryPromises.push(checkExists("articles", "article_id", article_id));
-    queryPromises.push(db.query(queryString, queryValues));
-    return Promise.all(queryPromises).then((PromResults) => {
-      if (queryPromises.length === 1) {
-        return PromResults[0].rows;
-      } else {
-        return PromResults[1].rows;
-      }
+  let queryString = `UPDATE articles SET votes = $1 WHERE articles.article_id = $2 RETURNING *`;
+  const queryValues = [];
+  const queryPromises = [];
+  queryValues.push(votesToChange, article_id);
+  queryPromises.push(checkExists("articles", "article_id", article_id));
+  queryPromises.push(db.query(queryString, queryValues));
+  return Promise.all(queryPromises).then((PromResults) => {
+    if (queryPromises.length === 1) {
+      return PromResults[0].rows;
+    } else {
+      return PromResults[1].rows;
+    }
   });
 };
 
@@ -147,7 +147,7 @@ exports.removeCommentAtId = (comment_id) => {
   let queryString = `DELETE FROM comments `;
   const queryValues = [];
   const queryPromises = [];
-  queryString += ` WHERE comment_id = $1 RETURNING * `
+  queryString += ` WHERE comment_id = $1 RETURNING * `;
   queryValues.push(comment_id);
   queryPromises.push(checkExists("comments", "comment_id", comment_id));
   queryPromises.push(db.query(queryString, queryValues));
@@ -157,6 +157,19 @@ exports.removeCommentAtId = (comment_id) => {
     } else {
       return PromResults[1].rows;
     }
-});
+  });
 };
 
+exports.retrieveAllUsers = () => {
+  return db
+    .query(
+      `
+        SELECT * FROM users `
+    )
+    .then((users) => {
+      return users.rows;
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
