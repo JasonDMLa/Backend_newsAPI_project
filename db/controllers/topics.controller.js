@@ -1,4 +1,4 @@
-const { response } = require("../app");
+const { response, request } = require("../app");
 const {
   retrieveAllTopics,
   retrieveAllEndpoints,
@@ -6,6 +6,7 @@ const {
   retrieveAllArticles,
   countCommentTotals,
   retrieveCommentsById,
+  addCommentById,
 } = require("../models/topics.models");
 
 exports.getTopics = (request, response, next) => {
@@ -63,11 +64,24 @@ exports.getArticles = (request, response, next) => {
 };
 
 exports.getCommentsByArticle = (request, response, next) => {
-  const { article_id } = request.params
-  retrieveCommentsById(article_id).then((comments)=>{
-    response.status(200).send({comments})
-  })
-  .catch((err) => {
-    next(err);
-  });
+  const { article_id } = request.params;
+  retrieveCommentsById(article_id)
+    .then((comments) => {
+      response.status(200).send({ comments });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.postCommentToArticle = (request, response, next) => {
+  const { article_id } = request.params;
+  const { body } = request;
+  addCommentById(article_id, body)
+    .then((comments) => {
+      response.status(201).send({ comments });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };

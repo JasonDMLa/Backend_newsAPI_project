@@ -73,7 +73,7 @@ describe("GET/api/articles/article_id", () => {
 
   test("400: returns a corresponding message when a given false syntaxed article id ", () => {
     return request(app)
-      .get("/api/articles/dog")
+      .get("/api/articles/invalid")
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("bad request");
@@ -108,10 +108,10 @@ describe("GET/api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments")
       .expect(200)
       .then(({ body: { comments } }) => {
-        expect(comments.length > 0)
-        expect(comments).toHaveLength(11)
+        expect(comments.length > 0);
+        expect(comments).toHaveLength(11);
         comments.forEach((comment) => {
-          expect(comment).toHaveProperty("comment_id");         
+          expect(comment).toHaveProperty("comment_id");
           expect(comment).toHaveProperty("votes");
           expect(comment).toHaveProperty("created_at");
           expect(comment).toHaveProperty("author");
@@ -124,7 +124,7 @@ describe("GET/api/articles/:article_id/comments", () => {
 
 test("400: returns a corresponding message when given a false syntaxed article id ", () => {
   return request(app)
-    .get("/api/articles/cat/comments")
+    .get("/api/articles/invalid/comments")
     .expect(400)
     .then(({ body }) => {
       expect(body.msg).toBe("bad request");
@@ -138,4 +138,44 @@ test("404: returns a corresponding message when given a syntax valid article id 
     .then(({ body }) => {
       expect(body.msg).toBe("id not found");
     });
+});
+
+describe("POST/api/articles/:article_id/comments", () => {
+  test("201: new comment found at article specified", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Fantastic Article",
+    };
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body: { comments } }) => {
+        expect(comments.length > 0);
+        expect(comments).toHaveLength(1);
+        expect(comments[0]).toHaveProperty("username","butter_bridge");
+        expect(comments[0]).toHaveProperty("body","Fantastic Article");
+      });
+  });
+  test("404: new comment found at article specified", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Fantastic Article",
+    };
+    return request(app)
+      .post("/api/articles/500/comments")
+      .send(newComment)
+      .expect(404 )
+      .then(({ body }) => {
+        expect(body.msg).toBe("id not found");
+      });
+  });
+  test("400: returns a corresponding message when given a false syntaxed article id ", () => {
+    return request(app)
+      .post("/api/articles/invalid/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
 });
