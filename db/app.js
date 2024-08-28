@@ -8,6 +8,7 @@ const {
   getCommentsByArticle,
   postCommentToArticle,
   patchArticleById,
+  deleteCommentById,
 } = require("./controllers/topics.controller");
 const {
   psqlErrorHandler,
@@ -30,6 +31,8 @@ app.use(express.json());
 app.post("/api/articles/:article_id/comments", postCommentToArticle);
 
 app.patch("/api/articles/:article_id", patchArticleById);
+
+app.delete("/api/comments/:comment_id", deleteCommentById);
 
 app.use(psqlErrorHandler);
 

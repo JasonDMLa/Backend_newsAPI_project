@@ -140,6 +140,23 @@ exports.changeVotesById = (article_id, votesToChange) => {
       } else {
         return PromResults[1].rows;
       }
-    
   });
 };
+
+exports.removeCommentAtId = (comment_id) => {
+  let queryString = `DELETE FROM comments `;
+  const queryValues = [];
+  const queryPromises = [];
+  queryString += ` WHERE comment_id = $1 RETURNING * `
+  queryValues.push(comment_id);
+  queryPromises.push(checkExists("comments", "comment_id", comment_id));
+  queryPromises.push(db.query(queryString, queryValues));
+  return Promise.all(queryPromises).then((PromResults) => {
+    if (queryPromises.length === 1) {
+      return PromResults[0].rows;
+    } else {
+      return PromResults[1].rows;
+    }
+});
+};
+

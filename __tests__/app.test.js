@@ -250,11 +250,37 @@ describe("PATCH/api/articles/:article_id", () => {
       inc_votes: "invalid",
     };
     return request(app)
-    .patch("/api/articles/1")
-    .send(newVoteAmount)
+      .patch("/api/articles/1")
+      .send(newVoteAmount)
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("bad request");
       });
   });
+});
+
+describe("DELETE/api/comments/:comment_id", () => {
+  test("204: delete a comment at specified id", () => {
+    return request(app)
+    .delete("/api/comments/1")
+    .expect(204);
+  });
+});
+
+test("400: returns a corresponding message when given a false syntaxed article id ", () => {
+  return request(app)
+  .delete("/api/comments/invalid")
+  .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("bad request");
+    });
+});
+
+test("404: returns a corresponding message when given a syntax valid article id that isnt found", () => {
+  return request(app)
+  .delete("/api/comments/500")
+  .expect(404)
+    .then(({ body }) => {
+      expect(body.msg).toBe("id not found");
+    });
 });
