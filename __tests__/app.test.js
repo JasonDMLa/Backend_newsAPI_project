@@ -140,7 +140,7 @@ test("404: returns a corresponding message when given a syntax valid article id 
     });
 });
 
-describe.only("POST/api/articles/:article_id/comments", () => {
+describe("POST/api/articles/:article_id/comments", () => {
   test("201: new comment found at article specified", () => {
     const newComment = {
       username: "butter_bridge",
