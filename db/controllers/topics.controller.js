@@ -1,4 +1,5 @@
 const { response, request } = require("../app");
+const { sort } = require("../data/test-data/articles.js");
 const {
   retrieveAllTopics,
   retrieveAllEndpoints,
@@ -42,9 +43,10 @@ exports.getArticleById = (request, response, next) => {
 };
 
 exports.getArticles = (request, response, next) => {
+  const {sort_by, order} = request.query
   countCommentTotals()
     .then((idCounts) => {
-      retrieveAllArticles(idCounts)
+      retrieveAllArticles(sort_by,order)
         .then((articles) => {
           const countsToMap = {};
           idCounts.forEach((articleCount) => {

@@ -33,16 +33,6 @@ exports.retrieveAllEndpoints = async () => {
 exports.retrieveArticleById = (article_id) => {
   let queryString = "SELECT * FROM articles";
   const queryValues = [];
-  // const validColumns = [
-  //   "article_id",
-  //   "title",
-  //   "topic",
-  //   "author",
-  //   "body",
-  //   "created_at",
-  //   "votes",
-  //   "article_img_url",
-  // ];
   const queryPromises = [];
 
   if (article_id) {
@@ -75,17 +65,37 @@ exports.countCommentTotals = () => {
     });
 };
 
-exports.retrieveAllArticles = (article_id) => {
-  return db
-    .query(
-      ` SELECT author,title,article_id,topic,created_at,votes,article_img_url FROM articles ORDER BY created_at DESC `
-    )
-    .then((articles) => {
-      return articles.rows;
-    })
-    .catch((err) => {
-      next(err);
-    });
+exports.retrieveAllArticles = (sort_by = "created_at", order = "DESC") => {
+  let queryString =
+    "SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles";
+
+  const validColumns = [
+    "article_id",
+    "title",
+    "topic",
+    "author",
+    "body",
+    "created_at",
+    "votes",
+    "article_img_url",
+  ];
+  const validOrders = ["ASC", "DESC"];
+
+  if (validColumns.includes(sort_by)) {
+    queryString += ` ORDER BY ${sort_by}`;
+  } else {
+    return Promise.reject({ status: 400, msg: "bad request" });
+  }
+
+  if (validOrders.includes(order.toUpperCase())) {
+    queryString += ` ${order.toUpperCase()}`;
+  } else {
+    return Promise.reject({ status: 400, msg: "bad request" });
+  }
+
+  return db.query(queryString).then((result) => {
+    return result.rows;
+  });
 };
 
 exports.retrieveCommentsById = (article_id) => {
