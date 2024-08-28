@@ -299,7 +299,7 @@ describe("GET/users", () => {
   });
 });
 
-describe.only("GET/api/articles?xx=xx", () => {
+describe("GET/api/articles?xx=xx", () => {
   test("200: returns all articles sorted by the sort_by query", () => {
     return request(app)
       .get("/api/articles?sort_by=title")

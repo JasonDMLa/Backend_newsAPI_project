@@ -169,3 +169,17 @@ exports.removeCommentAtId = (comment_id) => {
     }
   });
 };
+
+exports.retrieveAllUsers = () => {
+  return db
+    .query(
+      `
+        SELECT * FROM users `
+    )
+    .then((users) => {
+      return users.rows;
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
