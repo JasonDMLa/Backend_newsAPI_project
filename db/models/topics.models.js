@@ -65,10 +65,14 @@ exports.countCommentTotals = () => {
     });
 };
 
-exports.retrieveAllArticles = (sort_by = "created_at", order = "DESC") => {
+exports.retrieveAllArticles = (
+  sort_by = "created_at",
+  order = "DESC",
+  topic = ""
+) => {
   let queryString =
     "SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles";
-
+  const queryValues = [];
   const validColumns = [
     "article_id",
     "title",
@@ -80,9 +84,19 @@ exports.retrieveAllArticles = (sort_by = "created_at", order = "DESC") => {
     "article_img_url",
   ];
   const validOrders = ["ASC", "DESC"];
+  const validTopics = ["mitch", "cats"];
+
+  if (topic !== "") {
+    if (validTopics.includes(topic)) {
+      queryString += ` WHERE topic=$1`;
+    } else {
+      return Promise.reject({ status: 400, msg: "bad request" });
+    }
+  }
 
   if (validColumns.includes(sort_by)) {
     queryString += ` ORDER BY ${sort_by}`;
+    queryValues.push(topic);
   } else {
     return Promise.reject({ status: 400, msg: "bad request" });
   }
@@ -92,10 +106,15 @@ exports.retrieveAllArticles = (sort_by = "created_at", order = "DESC") => {
   } else {
     return Promise.reject({ status: 400, msg: "bad request" });
   }
-
-  return db.query(queryString).then((result) => {
-    return result.rows;
-  });
+  if (topic !== "") {
+    return db.query(queryString, queryValues).then((result) => {
+      return result.rows;
+    });
+  }else{
+    return db.query(queryString).then((result) => {
+      return result.rows;
+    });
+  }
 };
 
 exports.retrieveCommentsById = (article_id) => {
@@ -108,9 +127,7 @@ exports.retrieveCommentsById = (article_id) => {
     queryValues.push(article_id);
     queryPromises.push(checkExists("comments", "article_id", article_id));
   }
-
   queryPromises.push(db.query(queryString, queryValues));
-
   return Promise.all(queryPromises).then((PromResults) => {
     if (queryPromises.length === 1) {
       return PromResults[0].rows;
