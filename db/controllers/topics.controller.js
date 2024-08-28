@@ -6,7 +6,7 @@ const {
   retrieveAllArticles,
   countCommentTotals,
   retrieveCommentsById,
-  addCommentById,changeVotesById
+  addCommentById,changeVotesById,removeCommentAtId
 } = require("../models/topics.models");
 const { getVotes } = require("../seeds/utils.js");
 
@@ -104,5 +104,17 @@ exports.patchArticleById = (request, response, next) => {
     next(err);
   });
  
+};
+
+exports.deleteCommentById = (request, response, next) => {
+  const { comment_id } = request.params
+  removeCommentAtId(comment_id)
+    .then((comment) => {
+      console.log(comment,"<-- comment deleted")
+      response.status(204).send();
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
