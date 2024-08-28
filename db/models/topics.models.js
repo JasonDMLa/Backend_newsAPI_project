@@ -1,6 +1,6 @@
 const db = require("../connection.js");
 const endPoints = require("../../endpoints.json");
-const { checkExists } = require("../seeds/utils.js");
+const { checkExists, getVotes } = require("../seeds/utils.js");
 const { query } = require("express");
 
 exports.retrieveAllTopics = () => {
@@ -124,5 +124,22 @@ exports.addCommentById = (article_id, body) => {
     } else {
       return PromResults[1].rows;
     }
+  });
+};
+
+exports.changeVotesById = (article_id, votesToChange) => {
+    let queryString = `UPDATE articles SET votes = $1 WHERE articles.article_id = $2 RETURNING *`;
+    const queryValues = [];
+    const queryPromises = [];
+    queryValues.push(votesToChange, article_id);
+    queryPromises.push(checkExists("articles", "article_id", article_id));
+    queryPromises.push(db.query(queryString, queryValues));
+    return Promise.all(queryPromises).then((PromResults) => {
+      if (queryPromises.length === 1) {
+        return PromResults[0].rows;
+      } else {
+        return PromResults[1].rows;
+      }
+    
   });
 };

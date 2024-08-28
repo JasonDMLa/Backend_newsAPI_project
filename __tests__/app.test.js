@@ -153,11 +153,11 @@ describe("POST/api/articles/:article_id/comments", () => {
       .then(({ body: { comments } }) => {
         expect(comments.length > 0);
         expect(comments).toHaveLength(1);
-        expect(comments[0]).toHaveProperty("username","butter_bridge");
-        expect(comments[0]).toHaveProperty("body","Fantastic Article");
+        expect(comments[0]).toHaveProperty("username", "butter_bridge");
+        expect(comments[0]).toHaveProperty("body", "Fantastic Article");
       });
   });
-  test("404: new comment found at article specified", () => {
+  test("404: returns a corresponding message when given a syntax valid article id isnt found", () => {
     const newComment = {
       username: "butter_bridge",
       body: "Fantastic Article",
@@ -165,7 +165,7 @@ describe("POST/api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/500/comments")
       .send(newComment)
-      .expect(404 )
+      .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("id not found");
       });
@@ -173,6 +173,85 @@ describe("POST/api/articles/:article_id/comments", () => {
   test("400: returns a corresponding message when given a false syntaxed article id ", () => {
     return request(app)
       .post("/api/articles/invalid/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+});
+
+describe("PATCH/api/articles/:article_id", () => {
+  test("200: altered votes of specific article id, by specified amount", () => {
+    const newVoteAmount = {
+      inc_votes: 1,
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newVoteAmount)
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article.length > 0);
+        expect(article).toHaveLength(1);
+        expect(article[0]).toHaveProperty("votes", 101);
+        expect(article[0]).toHaveProperty("article_id");
+        expect(article[0]).toHaveProperty("title");
+        expect(article[0]).toHaveProperty("topic");
+        expect(article[0]).toHaveProperty("author");
+        expect(article[0]).toHaveProperty("created_at");
+        expect(article[0]).toHaveProperty("article_img_url");
+      });
+  });
+  test("200: altered votes of specific article id, by specified amount that equates to a negative number", () => {
+    const newVoteAmount = {
+      inc_votes: -101,
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newVoteAmount)
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article.length > 0);
+        expect(article).toHaveLength(1);
+        expect(article[0]).toHaveProperty("votes", -1);
+        expect(article[0]).toHaveProperty("article_id");
+        expect(article[0]).toHaveProperty("title");
+        expect(article[0]).toHaveProperty("topic");
+        expect(article[0]).toHaveProperty("author");
+        expect(article[0]).toHaveProperty("created_at");
+        expect(article[0]).toHaveProperty("article_img_url");
+      });
+  });
+  test("404: returns a corresponding message when given a syntax valid article id that isnt found ", () => {
+    const newVoteAmount = {
+      inc_votes: -101,
+    };
+    return request(app)
+      .patch("/api/articles/500")
+      .send(newVoteAmount)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("id not found");
+      });
+  });
+  test("400: returns a corresponding message when given a false syntaxed article id ", () => {
+    const newVoteAmount = {
+      inc_votes: -101,
+    };
+    return request(app)
+      .patch("/api/articles/invalid")
+      .send(newVoteAmount)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+  test("400: returns a corresponding message when given a false syntaxed article id ", () => {
+    const newVoteAmount = {
+      inc_votes: "invalid",
+    };
+    return request(app)
+    .patch("/api/articles/1")
+    .send(newVoteAmount)
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("bad request");
