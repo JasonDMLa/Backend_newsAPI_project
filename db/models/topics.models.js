@@ -31,16 +31,15 @@ exports.retrieveAllEndpoints = async () => {
 };
 
 exports.retrieveArticleById = (article_id) => {
-  let queryString = "SELECT * FROM articles";
+  let queryString = `SELECT articles.*, COUNT(comments.comment_id) AS comment_count FROM articles 
+                      LEFT JOIN comments ON comments.article_id = articles.article_id 
+                      WHERE articles.article_id = $1 
+                      GROUP BY articles.article_id`;
   const queryValues = [];
   const queryPromises = [];
 
-  if (article_id) {
-    queryString += ` WHERE article_id = $1 `;
-    queryValues.push(article_id);
-    queryPromises.push(checkExists("articles", "article_id", article_id));
-  }
-
+  queryValues.push(article_id);
+  queryPromises.push(checkExists("articles", "article_id", article_id));
   queryPromises.push(db.query(queryString, queryValues));
 
   return Promise.all(queryPromises).then((PromResults) => {
@@ -106,11 +105,12 @@ exports.retrieveAllArticles = (
   } else {
     return Promise.reject({ status: 400, msg: "bad request" });
   }
+
   if (topic !== "") {
     return db.query(queryString, queryValues).then((result) => {
       return result.rows;
     });
-  }else{
+  } else {
     return db.query(queryString).then((result) => {
       return result.rows;
     });

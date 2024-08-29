@@ -3,7 +3,7 @@ const request = require("supertest");
 const db = require("../db/connection.js");
 const seed = require("../db/seeds/seed.js");
 const data = require("../db/data/test-data/index");
-const sort = require("jest-sorted")
+const sort = require("jest-sorted");
 
 beforeEach(() => seed(data));
 afterAll(() => {
@@ -51,14 +51,27 @@ describe("GET/api/articles/article_id", () => {
       .then(({ body: { article } }) => {
         expect(article.length > 0);
         article.forEach((article) => {
-          expect(article).toHaveProperty("article_id");
-          expect(article).toHaveProperty("title");
-          expect(article).toHaveProperty("topic");
-          expect(article).toHaveProperty("author");
-          expect(article).toHaveProperty("body");
-          expect(article).toHaveProperty("created_at");
-          expect(article).toHaveProperty("votes");
-          expect(article).toHaveProperty("article_img_url");
+          expect(article).toHaveProperty("article_id", 1);
+          expect(article).toHaveProperty(
+            "title",
+            "Living in the shadow of a great man"
+          );
+          expect(article).toHaveProperty("topic", "mitch");
+          expect(article).toHaveProperty("author", "butter_bridge");
+          expect(article).toHaveProperty(
+            "body",
+            "I find this existence challenging"
+          );
+          expect(article).toHaveProperty(
+            "created_at",
+            "2020-07-09T20:11:00.000Z"
+          );
+          expect(article).toHaveProperty("votes", 100);
+          expect(article).toHaveProperty(
+            "article_img_url",
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+          );
+          expect(article).toHaveProperty("comment_count", "11");
         });
       });
   });
@@ -121,24 +134,23 @@ describe("GET/api/articles/:article_id/comments", () => {
         });
       });
   });
-});
+  test("400: returns a corresponding message when given a false syntaxed article id ", () => {
+    return request(app)
+      .get("/api/articles/invalid/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
 
-test("400: returns a corresponding message when given a false syntaxed article id ", () => {
-  return request(app)
-    .get("/api/articles/invalid/comments")
-    .expect(400)
-    .then(({ body }) => {
-      expect(body.msg).toBe("bad request");
-    });
-});
-
-test("404: returns a corresponding message when given a syntax valid article id isnt found", () => {
-  return request(app)
-    .get("/api/articles/500/comments")
-    .expect(404)
-    .then(({ body }) => {
-      expect(body.msg).toBe("id not found");
-    });
+  test("404: returns a corresponding message when given a syntax valid article id isnt found", () => {
+    return request(app)
+      .get("/api/articles/500/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("id not found");
+      });
+  });
 });
 
 describe("POST/api/articles/:article_id/comments", () => {
@@ -264,24 +276,23 @@ describe("DELETE/api/comments/:comment_id", () => {
   test("204: delete a comment at specified id", () => {
     return request(app).delete("/api/comments/1").expect(204);
   });
-});
+  test("400: returns a corresponding message when given a false syntaxed article id ", () => {
+    return request(app)
+      .delete("/api/comments/invalid")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
 
-test("400: returns a corresponding message when given a false syntaxed article id ", () => {
-  return request(app)
-    .delete("/api/comments/invalid")
-    .expect(400)
-    .then(({ body }) => {
-      expect(body.msg).toBe("bad request");
-    });
-});
-
-test("404: returns a corresponding message when given a syntax valid article id that isnt found", () => {
-  return request(app)
-    .delete("/api/comments/500")
-    .expect(404)
-    .then(({ body }) => {
-      expect(body.msg).toBe("id not found");
-    });
+  test("404: returns a corresponding message when given a syntax valid article id that isnt found", () => {
+    return request(app)
+      .delete("/api/comments/500")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("id not found");
+      });
+  });
 });
 
 describe("GET/users", () => {
@@ -316,7 +327,7 @@ describe("GET/api/articles?xx=xx", () => {
           expect(article).toHaveProperty("article_img_url");
           expect(article).toHaveProperty("comment_count");
         });
-        expect(articles).toBeSortedBy("title",{descending:true})
+        expect(articles).toBeSortedBy("title", { descending: true });
       });
   });
   test("200: returns all articles sorted by the order query", () => {
@@ -335,7 +346,7 @@ describe("GET/api/articles?xx=xx", () => {
           expect(article).toHaveProperty("article_img_url");
           expect(article).toHaveProperty("comment_count");
         });
-        expect(articles).toBeSortedBy("created_at",{descending:false})
+        expect(articles).toBeSortedBy("created_at", { descending: false });
       });
   });
   test("200: returns all articles sorted by the sort_by and order query", () => {
@@ -354,7 +365,7 @@ describe("GET/api/articles?xx=xx", () => {
           expect(article).toHaveProperty("article_img_url");
           expect(article).toHaveProperty("comment_count");
         });
-        expect(articles).toBeSortedBy("author",{descending:false})
+        expect(articles).toBeSortedBy("author", { descending: false });
       });
   });
 
@@ -387,14 +398,14 @@ describe("GET/api/articles?topic=xx", () => {
         articles.forEach((article) => {
           expect(article).toHaveProperty("article_id");
           expect(article).toHaveProperty("title");
-          expect(article).toHaveProperty("topic","mitch");
+          expect(article).toHaveProperty("topic", "mitch");
           expect(article).toHaveProperty("author");
           expect(article).toHaveProperty("created_at");
           expect(article).toHaveProperty("votes");
           expect(article).toHaveProperty("article_img_url");
           expect(article).toHaveProperty("comment_count");
         });
-        expect(articles).toBeSortedBy("created_at",{descending:true})
+        expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
   test("200: returns all articles sorted by the given topic", () => {
@@ -402,18 +413,18 @@ describe("GET/api/articles?topic=xx", () => {
       .get("/api/articles?topic=cats")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles.length = 1);
+        expect((articles.length = 1));
         articles.forEach((article) => {
           expect(article).toHaveProperty("article_id");
           expect(article).toHaveProperty("title");
-          expect(article).toHaveProperty("topic","cats");
+          expect(article).toHaveProperty("topic", "cats");
           expect(article).toHaveProperty("author");
           expect(article).toHaveProperty("created_at");
           expect(article).toHaveProperty("votes");
           expect(article).toHaveProperty("article_img_url");
           expect(article).toHaveProperty("comment_count");
         });
-        expect(articles).toBeSortedBy("created_at",{descending:true})
+        expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
   test("200: returns all articles sorted by the sort_by, order and topic query", () => {
@@ -425,14 +436,14 @@ describe("GET/api/articles?topic=xx", () => {
         articles.forEach((article) => {
           expect(article).toHaveProperty("article_id");
           expect(article).toHaveProperty("title");
-          expect(article).toHaveProperty("topic","mitch");
+          expect(article).toHaveProperty("topic", "mitch");
           expect(article).toHaveProperty("author");
           expect(article).toHaveProperty("created_at");
           expect(article).toHaveProperty("votes");
           expect(article).toHaveProperty("article_img_url");
           expect(article).toHaveProperty("comment_count");
         });
-        expect(articles).toBeSortedBy("author",{descending:false})
+        expect(articles).toBeSortedBy("author", { descending: false });
       });
   });
 
@@ -454,5 +465,3 @@ describe("GET/api/articles?topic=xx", () => {
       });
   });
 });
-
-
