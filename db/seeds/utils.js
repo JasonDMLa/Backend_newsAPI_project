@@ -1,34 +1,47 @@
 const format = require("pg-format");
 const db = require("../connection.js");
 
-exports.checkExists = (table_name,column_name,value) => {
+exports.checkExists = (table_name, column_name, value) => {
   const queryString = format(
     "SELECT * FROM %I WHERE %I = $1",
     table_name,
     column_name
-  )
-  return db.query(queryString,[value]).then(({rows})=>{
+  );
+  return db.query(queryString, [value]).then(({ rows }) => {
     if (rows.length === 0) {
       return Promise.reject({ status: 404, msg: "id not found" });
     }
-})}
+  });
+};
 
-exports.getVotes = (table_name,column_name,value) => {
+exports.getVotes = (table_name, column_name, value) => {
   const queryString = format(
     "SELECT votes FROM %I WHERE %I = $1",
     table_name,
     column_name
-  )
-  return db.query(queryString,[value]).then(({rows})=>{
+  );
+  return db.query(queryString, [value]).then(({ rows }) => {
     if (rows.length === 0) {
       return Promise.reject({ status: 404, msg: "id not found" });
+    } else {
+      return rows[0];
     }
-    else{
-      return rows[0]
+  });
+};
+
+exports.getTopicList = (table_name) => {
+  const queryString = format(
+    `SELECT ${table_name}.slug FROM %I`,
+    table_name,
+  );
+  return db.query(queryString).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({ status: 404, msg: "id not found" });
+    } else {
+      return rows;
     }
-})}
-
-
+  });
+};
 
 exports.convertTimestampToDate = ({ created_at, ...otherProperties }) => {
   if (!created_at) return { ...otherProperties };

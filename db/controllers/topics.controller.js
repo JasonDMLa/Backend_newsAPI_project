@@ -7,9 +7,12 @@ const {
   retrieveAllArticles,
   countCommentTotals,
   retrieveCommentsById,
-  addCommentById,changeVotesById,removeCommentAtId,retrieveAllUsers
+  addCommentById,
+  changeVotesById,
+  removeCommentAtId,
+  retrieveAllUsers,
 } = require("../models/topics.models");
-const { getVotes } = require("../seeds/utils.js");
+const { getVotes, getTopicList } = require("../seeds/utils.js");
 
 exports.getTopics = (request, response, next) => {
   retrieveAllTopics()
@@ -33,6 +36,7 @@ exports.getEndpoints = (request, response, next) => {
 
 exports.getArticleById = (request, response, next) => {
   const { article_id } = request.params;
+
   retrieveArticleById(article_id)
     .then((article) => {
       response.status(200).send({ article });
@@ -43,27 +47,36 @@ exports.getArticleById = (request, response, next) => {
 };
 
 exports.getArticles = (request, response, next) => {
-  const {sort_by, order, topic} = request.query
-  countCommentTotals()
-    .then((idCounts) => {
-      retrieveAllArticles(sort_by,order,topic)
-        .then((articles) => {
-          const countsToMap = {};
-          idCounts.forEach((articleCount) => {
-            countsToMap[articleCount.article_id] = Number(articleCount.total);
-          });
-          articles.forEach((article) => {
-            article.comment_count = countsToMap[article.article_id] || 0;
-          });
-          response.status(200).send({ articles });
-        })
-        .catch((err) => {
-          next(err);
-        });
-    })
-    .catch((err) => {
-      next(err);
+  const { sort_by, order, topic } = request.query;
+  getTopicList("topics").then((topics) => {
+    const availableTopics = [];
+    topics.forEach((topic) => {
+      availableTopics.push(topic.slug);
     });
+    countCommentTotals()
+      .then((idCounts) => {
+        retrieveAllArticles(sort_by, order, topic, availableTopics)
+          .then((articles) => {
+            const countsToMap = {};
+            idCounts.forEach((articleCount) => {
+              countsToMap[articleCount.article_id] = Number(articleCount.total);
+            });
+            articles.forEach((article) => {
+              article.comment_count = countsToMap[article.article_id] || 0;
+            });
+            response.status(200).send({ articles });
+          })
+          .catch((err) => {
+            next(err);
+          });
+      })
+      .catch((err) => {
+        next(err);
+      })
+      .catch((err) => {
+        next(err);
+      });
+  });
 };
 
 exports.getCommentsByArticle = (request, response, next) => {
@@ -93,26 +106,26 @@ exports.patchArticleById = (request, response, next) => {
   const { article_id } = request.params;
   const { body } = request;
   getVotes("articles", "article_id", article_id)
-  .then((currentVotes)=>{
-    const votesToChange = currentVotes.votes + body.inc_votes
-     changeVotesById(article_id, votesToChange)
-    .then((article) => {
-      response.status(200).send({ article });
+    .then((currentVotes) => {
+      const votesToChange = currentVotes.votes + body.inc_votes;
+      changeVotesById(article_id, votesToChange)
+        .then((article) => {
+          response.status(200).send({ article });
+        })
+        .catch((err) => {
+          next(err);
+        });
     })
     .catch((err) => {
       next(err);
     });
-  }).catch((err) => {
-    next(err);
-  });
- 
 };
 
 exports.deleteCommentById = (request, response, next) => {
-  const { comment_id } = request.params
+  const { comment_id } = request.params;
   removeCommentAtId(comment_id)
     .then((comment) => {
-      console.log(comment,"<-- comment deleted")
+      console.log(comment, "<-- comment deleted");
       response.status(204).send();
     })
     .catch((err) => {
@@ -121,8 +134,7 @@ exports.deleteCommentById = (request, response, next) => {
 };
 
 exports.getAllUsers = (request, response, next) => {
-  retrieveAllUsers().then((users)=>{
-    response.status(200).send({users})
-  })
-}
-
+  retrieveAllUsers().then((users) => {
+    response.status(200).send({ users });
+  });
+};

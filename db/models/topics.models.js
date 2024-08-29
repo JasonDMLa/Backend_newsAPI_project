@@ -67,7 +67,8 @@ exports.countCommentTotals = () => {
 exports.retrieveAllArticles = (
   sort_by = "created_at",
   order = "DESC",
-  topic = ""
+  topic = "",
+  availableTopics
 ) => {
   let queryString =
     "SELECT author, title, article_id, topic, created_at, votes, article_img_url FROM articles";
@@ -83,7 +84,7 @@ exports.retrieveAllArticles = (
     "article_img_url",
   ];
   const validOrders = ["ASC", "DESC"];
-  const validTopics = ["mitch", "cats"];
+  const validTopics = availableTopics;
 
   if (topic !== "") {
     if (validTopics.includes(topic)) {
