@@ -1,4 +1,4 @@
-const { response, request } = require("../app");
+const { response, request } = require("../app.js");
 const { sort } = require("../data/test-data/articles.js");
 const {
   retrieveAllTopics,
@@ -11,7 +11,7 @@ const {
   changeVotesById,
   removeCommentAtId,
   retrieveAllUsers,
-} = require("../models/topics.models");
+} = require("../models/topics.models.js");
 const { getVotes, getTopicList } = require("../seeds/utils.js");
 
 exports.getTopics = (request, response, next) => {
