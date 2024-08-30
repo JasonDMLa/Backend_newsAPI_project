@@ -465,3 +465,81 @@ describe("GET/api/articles?topic=xx", () => {
       });
   });
 });
+
+describe("GET/api/users/:username", () => {
+  test("200: retrieves the user properties specified by the given username", () => {
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .expect(200)
+      .then(({ body: { user } }) => {
+        expect(user.length > 0);
+        user.forEach((user) => {
+          expect(user).toHaveProperty("username", "butter_bridge");
+          expect(user).toHaveProperty("name", "jonny");
+          expect(user).toHaveProperty(
+            "avatar_url",
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+          );
+        });
+      });
+  });
+  test("404: returns a corresponding message when given a correctly syntaxed username not found in the database", () => {
+    return request(app)
+      .get("/api/users/invalid")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("username not found");
+      });
+  });
+});
+
+describe("PATCH/api/comments/:comment_id", () => {
+  test("200: edits the number of votes for a selected comment id", () => {
+    const newVoteAmount = {
+      inc_votes: 5,
+    };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(newVoteAmount)
+      .expect(200)
+      .then(({ body: { comment } }) => {
+        expect(comment.length > 0);
+        expect(comment).toHaveLength(1);
+        expect(comment[0]).toHaveProperty("votes", 21);
+        expect(comment[0]).toHaveProperty("comment_id", 1);
+        expect(comment[0]).toHaveProperty(
+          "body",
+          "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!"
+        );
+        expect(comment[0]).toHaveProperty("author", "butter_bridge");
+        expect(comment[0]).toHaveProperty(
+          "created_at",
+          "2020-04-06T12:17:00.000Z"
+        );
+      });
+  });
+  test("404: returns a corresponding message when given a correctly syntaxed comment id not found in the database", () => {
+    const newVoteAmount = {
+      inc_votes: 5,
+    };
+    return request(app)
+      .patch("/api/comments/500")
+      .send(newVoteAmount)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("id not found");
+      });
+  });
+  test("400: returns a corresponding message when given a false syntaxed comment id ", () => {
+    const newVoteAmount = {
+      inc_votes: 5,
+    };
+    return request(app)
+      .patch("/api/comments/invalid")
+      .send(newVoteAmount)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+});

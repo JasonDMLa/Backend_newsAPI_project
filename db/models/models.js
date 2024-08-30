@@ -2,6 +2,7 @@ const db = require("../connection.js");
 const endPoints = require("../../endpoints.json");
 const { checkExists, getVotes } = require("../seeds/utils.js");
 const { query } = require("express");
+const { promises } = require("supertest/lib/test.js");
 
 exports.retrieveAllTopics = () => {
   return db
@@ -201,3 +202,35 @@ exports.retrieveAllUsers = () => {
       next(err);
     });
 };
+
+exports.retrieveUserByUsername = (username) => {
+  let queryString = `SELECT * FROM users WHERE username=$1`;
+  const queryValues = [];
+  const queryPromises = [];
+  queryValues.push(username);
+  queryPromises.push(db.query(queryString, queryValues));
+  return Promise.all(queryPromises).then((PromResults) => {
+    if (PromResults[0].rows.length > 0) {
+      return PromResults[0].rows;
+    } else {
+      return Promise.reject({ status: 404, msg: "username not found" });
+    }
+  });
+};
+
+exports.changeCommentVotesById = (comment_id, votesToChange) => {
+  let queryString = `UPDATE comments SET votes = $1 WHERE comments.comment_id = $2 RETURNING *`;
+  const queryValues = [];
+  const queryPromises = [];
+  queryValues.push(votesToChange, comment_id);
+  queryPromises.push(checkExists("comments", "comment_id", comment_id));
+  queryPromises.push(db.query(queryString, queryValues));
+  return Promise.all(queryPromises).then((PromResults) => {
+      if (PromResults[1].rows.length > 0) {
+        return PromResults[1].rows;
+      } else {
+        return Promise.reject({ status: 404, msg: "comment id not found" });
+      }
+  });
+};
+

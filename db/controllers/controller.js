@@ -11,7 +11,8 @@ const {
   changeVotesById,
   removeCommentAtId,
   retrieveAllUsers,
-} = require("../models/topics.models.js");
+  retrieveUserByUsername,changeCommentVotesById
+} = require("../models/models.js");
 const { getVotes, getTopicList } = require("../seeds/utils.js");
 
 exports.getTopics = (request, response, next) => {
@@ -125,7 +126,6 @@ exports.deleteCommentById = (request, response, next) => {
   const { comment_id } = request.params;
   removeCommentAtId(comment_id)
     .then((comment) => {
-      console.log(comment, "<-- comment deleted");
       response.status(204).send();
     })
     .catch((err) => {
@@ -137,4 +137,34 @@ exports.getAllUsers = (request, response, next) => {
   retrieveAllUsers().then((users) => {
     response.status(200).send({ users });
   });
+};
+
+exports.getUsersByUsername = (request, response, next) => {
+  const { username } = request.params;
+  retrieveUserByUsername(username)
+    .then((user) => {
+      response.status(200).send({ user });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.patchCommentById = (request, response, next) => {
+  const { comment_id } = request.params;
+  const { body } = request;
+  getVotes("comments", "comment_id", comment_id)
+    .then((currentVotes) => {
+      const votesToChange = currentVotes.votes + body.inc_votes;
+      changeCommentVotesById(comment_id, votesToChange)
+        .then((comment) => {
+          response.status(200).send({ comment });
+        })
+        .catch((err) => {
+          next(err);
+        });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
