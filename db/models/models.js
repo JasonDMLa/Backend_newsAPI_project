@@ -65,6 +65,7 @@ exports.countCommentTotals = () => {
     });
 };
 
+
 exports.retrieveAllArticles = (
   sort_by = "created_at",
   order = "DESC",
@@ -234,3 +235,18 @@ exports.changeCommentVotesById = (comment_id, votesToChange) => {
   });
 };
 
+exports.addArticle = (body) => {
+  const articleBody = Object.values(body);
+  let queryString = `INSERT INTO articles (author,title,body,topic,article_img_url) VALUES ($1,$2,$3,$4,$5) RETURNING *`;
+  const queryValues = [];
+  const queryPromises = [];
+  queryValues.push(...articleBody);
+  queryPromises.push(db.query(queryString, queryValues));
+  return Promise.all(queryPromises).then((PromResults) => {
+    if (queryPromises.length === 1) {
+      return PromResults[0].rows;
+    } else {
+      return PromResults[1].rows;
+    }
+  });
+};

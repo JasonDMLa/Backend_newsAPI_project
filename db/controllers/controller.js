@@ -11,7 +11,9 @@ const {
   changeVotesById,
   removeCommentAtId,
   retrieveAllUsers,
-  retrieveUserByUsername,changeCommentVotesById
+  retrieveUserByUsername,
+  changeCommentVotesById,
+  addArticle,
 } = require("../models/models.js");
 const { getVotes, getTopicList } = require("../seeds/utils.js");
 
@@ -159,6 +161,33 @@ exports.patchCommentById = (request, response, next) => {
       changeCommentVotesById(comment_id, votesToChange)
         .then((comment) => {
           response.status(200).send({ comment });
+        })
+        .catch((err) => {
+          next(err);
+        });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.postNewArticle = (request, response, next) => {
+  const { body } = request;
+  addArticle(body)
+    .then((article) => {
+      countCommentTotals()
+        .then((commentCounts) => {
+          console.log(article,"<-- article")
+          console.log(commentCounts,"<--- comments")
+          article.forEach((currentArticle) => {
+            const foundComment = commentCounts.find(
+              (comment) => comment.article_id === currentArticle.article_id
+            );
+            currentArticle.comment_count = foundComment
+              ? foundComment.total
+              : "0";
+          });
+          response.status(201).send({ article });
         })
         .catch((err) => {
           next(err);

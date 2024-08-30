@@ -166,8 +166,10 @@ describe("POST/api/articles/:article_id/comments", () => {
       .then(({ body: { comments } }) => {
         expect(comments.length > 0);
         expect(comments).toHaveLength(1);
-        expect(comments[0]).toHaveProperty("username", "butter_bridge");
-        expect(comments[0]).toHaveProperty("body", "Fantastic Article");
+        comments.forEach((comment) => {
+          expect(comment).toHaveProperty("username", "butter_bridge");
+          expect(comment).toHaveProperty("body", "Fantastic Article");
+        });
       });
   });
   test("404: returns a corresponding message when given a syntax valid article id isnt found", () => {
@@ -205,13 +207,15 @@ describe("PATCH/api/articles/:article_id", () => {
       .then(({ body: { article } }) => {
         expect(article.length > 0);
         expect(article).toHaveLength(1);
-        expect(article[0]).toHaveProperty("votes", 101);
-        expect(article[0]).toHaveProperty("article_id");
-        expect(article[0]).toHaveProperty("title");
-        expect(article[0]).toHaveProperty("topic");
-        expect(article[0]).toHaveProperty("author");
-        expect(article[0]).toHaveProperty("created_at");
-        expect(article[0]).toHaveProperty("article_img_url");
+        article.forEach((article) => {
+          expect(article).toHaveProperty("votes", 101);
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("article_img_url");
+        });
       });
   });
   test("200: altered votes of specific article id, by specified amount that equates to a negative number", () => {
@@ -225,13 +229,15 @@ describe("PATCH/api/articles/:article_id", () => {
       .then(({ body: { article } }) => {
         expect(article.length > 0);
         expect(article).toHaveLength(1);
-        expect(article[0]).toHaveProperty("votes", -1);
-        expect(article[0]).toHaveProperty("article_id");
-        expect(article[0]).toHaveProperty("title");
-        expect(article[0]).toHaveProperty("topic");
-        expect(article[0]).toHaveProperty("author");
-        expect(article[0]).toHaveProperty("created_at");
-        expect(article[0]).toHaveProperty("article_img_url");
+        article.forEach((article) => {
+          expect(article).toHaveProperty("votes", -1);
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("article_img_url");
+        });
       });
   });
   test("404: returns a corresponding message when given a syntax valid article id that isnt found ", () => {
@@ -505,17 +511,19 @@ describe("PATCH/api/comments/:comment_id", () => {
       .then(({ body: { comment } }) => {
         expect(comment.length > 0);
         expect(comment).toHaveLength(1);
-        expect(comment[0]).toHaveProperty("votes", 21);
-        expect(comment[0]).toHaveProperty("comment_id", 1);
-        expect(comment[0]).toHaveProperty(
-          "body",
-          "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!"
-        );
-        expect(comment[0]).toHaveProperty("author", "butter_bridge");
-        expect(comment[0]).toHaveProperty(
-          "created_at",
-          "2020-04-06T12:17:00.000Z"
-        );
+        comment.forEach((comment) => {
+          expect(comment).toHaveProperty("votes", 21);
+          expect(comment).toHaveProperty("comment_id", 1);
+          expect(comment).toHaveProperty(
+            "body",
+            "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!"
+          );
+          expect(comment).toHaveProperty("author", "butter_bridge");
+          expect(comment).toHaveProperty(
+            "created_at",
+            "2020-04-06T12:17:00.000Z"
+          );
+        });
       });
   });
   test("404: returns a corresponding message when given a correctly syntaxed comment id not found in the database", () => {
@@ -537,6 +545,79 @@ describe("PATCH/api/comments/:comment_id", () => {
     return request(app)
       .patch("/api/comments/invalid")
       .send(newVoteAmount)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+});
+describe("POST/api/articles", () => {
+  test("201: posts a new article with all relevant properties", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Living in the shadow of a great man",
+      body: "I find this existence challenging",
+      topic: "mitch",
+      article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body: { article } }) => {
+        expect(article.length > 0);
+        expect(article).toHaveLength(1);
+        article.forEach((article) => {
+          expect(article).toHaveProperty("article_id", 14);
+          expect(article).toHaveProperty(
+            "article_img_url",
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+          );
+          expect(article).toHaveProperty("author", "butter_bridge");
+          expect(article).toHaveProperty(
+            "body",
+            "I find this existence challenging"
+          );
+          expect(article).toHaveProperty("comment_count", "0");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty(
+            "title",
+            "Living in the shadow of a great man"
+          );
+          expect(article).toHaveProperty("topic", "mitch");
+          expect(article).toHaveProperty("votes", 0);
+        });
+      });
+  });
+  test.skip("404: returns a corresponding message when given an invalid topic", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Living in the shadow of a great man",
+      body: "I find this existence challenging",
+      topic: "invalid",
+      article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("");
+      });
+  });
+  test.skip("400: returns a corresponding message when given an incorrectly formatted request body", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Living in the shadow of a great man",
+      // Missing 'body' and 'topic'
+      article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("bad request");
