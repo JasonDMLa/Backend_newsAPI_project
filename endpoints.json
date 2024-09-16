@@ -28,7 +28,7 @@
       ]
     }
   },
-  "GET /api/articles/article_id": {
+  "GET /api/articles/:article_id": {
     "description": "serves an array of all information associated with the given article_id",
     "queries": [],
     "exampleResponse": {
